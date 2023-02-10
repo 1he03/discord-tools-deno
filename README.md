@@ -1,7 +1,12 @@
 # how to use
 
 ```typescript
-import { createActionRow, createTextInput, createSelectMenu, createButton } from "https://deno.land/x/discord_tools@v1.0.0/mod.ts";
+import { 
+    createActionRow, 
+    createTextInput, 
+    createSelectMenu, 
+    createButton 
+    } from "https://deno.land/x/discord_tools@v1.0.0/mod.ts";
 
 createButton(/* options: ButtonOptions */)
 
