@@ -13,7 +13,7 @@ import {
 export function createActionRow(components: Components) : ActionRow
 {
     const actionRow = {type: 1} as ActionRow;
-    if(Array.isArray(components)) actionRow.components = components;
+    if(Array.isArray(components)) actionRow.components = components as [ButtonComponent, ButtonComponent, ButtonComponent, ButtonComponent, ButtonComponent];
     else actionRow.components = [components];
     return actionRow;
 }
@@ -39,4 +39,4 @@ export type Components =
 | SelectMenuRolesComponent
 | SelectMenuUsersComponent
 | SelectMenuUsersAndRolesComponent
-| ButtonComponent
+| ButtonComponent[]
