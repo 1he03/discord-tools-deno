@@ -2,9 +2,9 @@ import {ButtonComponent} from "https://deno.land/x/discordeno@18.0.1/mod.ts";
 
 export function createButton(options: ButtonOptions): ButtonComponent {
     const button = {type: 2} as ButtonComponent;
-    button.label = options.label || "";
-    button.disabled = options.disabled;
-    button.emoji = options.emoji;
+    if(options.label) button.label = options.label;
+    if(options.disabled) button.disabled = options.disabled;
+    if(options.emoji) button.emoji = options.emoji;
     if(options.style == "Link"){
         button.style = 5;
         button.url = options.url;

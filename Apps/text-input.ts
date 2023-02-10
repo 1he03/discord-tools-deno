@@ -6,12 +6,12 @@ export function createTextInput(options: TextInputOptions) : InputTextComponent
     const input = {type: 4} as InputTextComponent;
     input.customId = options.customId;
     input.label = options.label;
-    input.maxLength = options.maxLength;
-    input.minLength = options.minLength;
-    input.placeholder = options.placeholder;
-    input.required = options.required;
-    input.value = options.value;
-    input.style = options.style == "Paragraph"? 2 : 1
+    input.style = options.style == "Paragraph"? 2 : 1;
+    if(options.maxLength) input.maxLength = options.maxLength;
+    if(options.minLength) input.minLength = options.minLength;
+    if(options.placeholder) input.placeholder = options.placeholder;
+    if(options.required) input.required = options.required;
+    if(options.value) input.value = options.value;
     return input;
 }
 
