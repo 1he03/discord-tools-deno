@@ -6,7 +6,7 @@ import {
     createTextInput, 
     createSelectMenu, 
     createButton 
-    } from "https://deno.land/x/discord_tools@v1.0.0/mod.ts";
+    } from "https://deno.land/x/discord_tools@v1.0.3/mod.ts";
 
 createButton(/* options: ButtonOptions */)
 
