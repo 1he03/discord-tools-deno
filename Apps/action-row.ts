@@ -39,3 +39,4 @@ export type Components =
 | SelectMenuRolesComponent
 | SelectMenuUsersComponent
 | SelectMenuUsersAndRolesComponent
+| ButtonComponent[]
