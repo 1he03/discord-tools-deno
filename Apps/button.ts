@@ -3,7 +3,7 @@ import {ButtonComponent} from "https://deno.land/x/discordeno@18.0.1/mod.ts";
 export function createButton(options: ButtonOptions): ButtonComponent {
     const button = {type: 2} as ButtonComponent;
     if(options.label) button.label = options.label;
-    if(options.disabled) button.disabled = options.disabled;
+    if(options.disabled != undefined) button.disabled = options.disabled;
     if(options.emoji) button.emoji = options.emoji;
     if(options.style == "Link"){
         button.style = 5;
