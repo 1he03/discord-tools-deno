@@ -10,7 +10,7 @@ modal.show(bot, Interaction);
 ```
 Here is create component and send message:
 ```typescript
-import { createModal } from "https://deno.land/x/discord_tools@v1.0.4/mod.ts";
+import { createComponent } from "https://deno.land/x/discord_tools@v1.0.5/mod.ts";
 
 const component = createComponent();
 component.createActionRow()
