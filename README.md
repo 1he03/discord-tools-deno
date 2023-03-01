@@ -1,7 +1,7 @@
 # Getting Started
 Here is a minimal example to create and show modal:
 ```typescript
-import { createModal } from "https://deno.land/x/discord_tools@v1.0.5/mod.ts";
+import { createModal } from "https://deno.land/x/discord_tools@v1.0.6/mod.ts";
 
 const modal = createModal("title", "customId");
 modal.createTextInput({label:"label", customId:"customId", style:"Short"});
@@ -10,7 +10,7 @@ modal.show(bot, Interaction);
 ```
 Here is create component and send message:
 ```typescript
-import { createComponent } from "https://deno.land/x/discord_tools@v1.0.5/mod.ts";
+import { createComponent } from "https://deno.land/x/discord_tools@v1.0.6/mod.ts";
 
 const component = createComponent();
 component.createActionRow()
@@ -24,7 +24,7 @@ Also can edit message, send interaction or edit interaction:
 ```typescript
 const component = createComponent();
 component.createActionRow()
-.createSelectMenu({customId:"customId", arrOptions:[{label:"label", value:"value"}]});
+.createSelectMenu({customId:"customId", options:[{label:"label", value:"value"}]});
 
 component.editMessage(bot, "channelId", "messageId");
 component.editMessage(bot, "channelId", "messageId", {content:"content"});
@@ -47,5 +47,5 @@ component.createActionRow()
 component.clear();
 
 component.createActionRow()
-.createSelectMenu({customId:"customId", arrOptions:[{label:"label", value:"value"}]});
+.createSelectMenu({customId:"customId", options:[{label:"label", value:"value"}]});
 ```
