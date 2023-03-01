@@ -9,7 +9,7 @@ export function createSelectMenu(options: SelectMenuOptions) : SelectMenuCompone
 
 export interface SelectMenuOptions{
     customId: string,
-    arrOptions: [SelectOption],
+    arrOptions: SelectOption[],
     disabled?: boolean,
     placeholder?: string,
     minValues?: number,
