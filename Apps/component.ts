@@ -34,25 +34,25 @@ export function createComponent(components?: ActionRow | ActionRow[]){
                 }
             }
         },
-        sendMessage(bot: Bot, channelId: BigString, options?: CreateMessage){
+        async sendMessage(bot: Bot, channelId: BigString, options?: CreateMessage){
             if(!options) options = {components: this.components};
             else options.components = this.components;
-            return bot.helpers.sendMessage(channelId, options);
+            return await bot.helpers.sendMessage(channelId, options);
         },
-        editMessage(bot: Bot, channelId: BigString, messageId: BigString, options?: EditMessage){
+        async editMessage(bot: Bot, channelId: BigString, messageId: BigString, options?: EditMessage){
             if(!options) options = {components: this.components};
             else options.components = this.components;
-            return bot.helpers.editMessage(channelId, messageId, options);
+            return await bot.helpers.editMessage(channelId, messageId, options);
         },
-        sendInteraction(bot: Bot, interaction: Interaction, options?: InteractionCallbackData){
+        async sendInteraction(bot: Bot, interaction: Interaction, options?: InteractionCallbackData){
             if(!options) options = {components: this.components};
             else options.components = this.components;
-            bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 4, data: options});
+            await bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 4, data: options});
         },
-        editInteraction(bot: Bot, interaction: Interaction, options?: InteractionCallbackData){
+        async editInteraction(bot: Bot, interaction: Interaction, options?: InteractionCallbackData){
             if(!options) options = {components: this.components};
             else options.components = this.components;
-            bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 7, data: options});
+            await bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 7, data: options});
         },
         clear(){
             this.components = [];
