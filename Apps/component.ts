@@ -3,7 +3,7 @@ import {Components} from "./action-row.ts";
 import {createButton, ButtonOptions} from "./button.ts";
 import {createSelectMenu, SelectMenuOptions} from "./select-menu.ts";
 
-export function createComponent(components?: ActionRow | ActionRow[]){
+export function createComponent(components?: ActionRow | ActionRow[]) {
     let setComponent = [] as ActionRow[];
     if(components){
         if(Array.isArray(components)) setComponent = components;
