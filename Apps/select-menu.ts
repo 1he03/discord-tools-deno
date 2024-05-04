@@ -56,7 +56,7 @@ export interface SelectMenuRolesOptions {
     placeholder?: string
     minValues?: number
     maxValues?: number
-    defaultValues: {
+    defaultValues?: {
         id: bigint
         type: "user" | "role" | "channel"
     }[]
