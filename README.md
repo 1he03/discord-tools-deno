@@ -1,65 +1,46 @@
 # Getting Started
 Here is a minimal example to create and show modal:
 ```typescript
-import { createModal } from "https://deno.land/x/discord_tools@v1.0.8/mod.ts";
+import { createModal } from "https://deno.land/x/discord_tools@v1.0.9/mod.ts";
 
 const modal = createModal("title", "customId");
 modal.createTextInput({label:"label", customId:"customId", style:"Short"});
 modal.createTextInput({label:"label2", customId:"customId2", style:"Paragraph", placeholder:"Enter here:", required: true});
 modal.show(bot, Interaction);
 ```
-Here is create component and send message:
-```typescript
-import { createComponent } from "https://deno.land/x/discord_tools@v1.0.8/mod.ts";
 
-const component = createComponent();
-component.createActionRow()
-.createButton({style: "Primary", customId:"customId", "label": "label"})
-.createButton({style: "Link", url:"https://www.google.com", "label": "label"});
-
-component.sendMessage(bot, "channelId");
-component.sendMessage(bot, "channelId",{content:"content"}); // or send with options
-```
-Also can edit message, send interaction or edit interaction:
-```typescript
-const component = createComponent();
-component.createActionRow()
-.createSelectMenu({customId:"customId", options:[{label:"label", value:"value"}]});
-
-component.editMessage(bot, "channelId", "messageId");
-component.editMessage(bot, "channelId", "messageId", {content:"content"});
-```
-```typescript
-component.sendInteraction(bot, interaction);
-component.sendInteraction(bot, interaction, {content:"content"});
-```
-```typescript
-component.editInteraction(bot, interaction);
-component.editInteraction(bot, interaction, {content:"content"});
-```
-Here can clear and add new component:
-```typescript
-const component = createComponent();
-component.createActionRow()
-.createButton({style: "Primary", customId:"customId", "label": "label"})
-.createButton({style: "Link", url:"https://www.google.com", "label": "label"});
-
-component.clear();
-
-component.createActionRow()
-.createSelectMenu({customId:"customId", options:[{label:"label", value:"value"}]});
-```
-
-MessageTools is easy tools for control send or edit message `( same createComponent features but has more features )`:
+MessageTools is easy tools for control send or edit message:
 
 ```typescript
-import { MessageTools } from "https://deno.land/x/discord_tools@v1.0.8/mod.ts";
+import { MessageTools } from "https://deno.land/x/discord_tools@v1.0.9/mod.ts";
 
 const messageTools = new MessageTools(bot);
-messageTools.createActionRow().createButton({style: "Primary", customId:"customId", "label": "label"});
-messageTools.setContent("Text");
+messageTools.createActionRow()
+    .createButton({style: "Primary", customId:"customId", "label": "label"})
+    .createButton({style: "Link", url:"https://www.google.com", "label": "label"});
+messageTools.createActionRow()
+    .createSelectMenu({customId:"customId", options:[{label:"label", value:"value"}]});
+
 // you can explore more feature for MessagesTools
 
-messageTools.sendMessage("channelId");
-messageTools.sendInteraction(Interaction);
+await messageTools.sendMessage("channelId");
+await messageTools.sendMessage("channelId",{content:"content"}); // or send with options
+
+messageTools.clear(); // reset all options data
+
+messageTools.createActionRow().createSelectMenuChannels({customId:"customId"});
+messageTools.createActionRow().createSelectMenuRoles({customId:"customId"});
+messageTools.createActionRow().createSelectMenuUsers({customId:"customId"});
+messageTools.createActionRow().createSelectMenuUsersAndRoles({customId:"customId"});
+
+await messageTools.setContent("Text");
+
+await messageTools.editMessage("channelId", "messageId");
+```
+```typescript
+await messageTools.sendMessage("channelId");
+await messageTools.editMessage("channelId", "messageId");
+await messageTools.sendDirectMessage("userId");
+await messageTools.sendInteraction(interaction);
+await messageTools.editInteraction(interaction);
 ```

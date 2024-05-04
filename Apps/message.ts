@@ -14,9 +14,10 @@ import {
     Attachment,
     MessageComponents
 } from "https://deno.land/x/discordeno@18.0.1/mod.ts";
-import {Components} from "./action-row.ts";
-import {createButton, ButtonOptions} from "./button.ts";
-import {createSelectMenu, SelectMenuOptions} from "./select-menu.ts";
+import { sendDirectMessage } from "https://deno.land/x/discordeno@18.0.1/plugins/mod.ts";
+import { Components } from "./action-row.ts";
+import { createButton, ButtonOptions } from "./button.ts";
+import { createSelectMenu, createSelectMenuChannels, createSelectMenuRoles, createSelectMenuUsers, createSelectMenuUsersAndRoles, SelectMenuChannelsOptions, SelectMenuOptions, SelectMenuRolesOptions, SelectMenuUsersOptions } from "./select-menu.ts";
 
 export class MessageTools {
     private bot: Bot;
@@ -114,8 +115,33 @@ export class MessageTools {
             },
             createSelectMenu(options: SelectMenuOptions){
                 component[component.length - 1].components = [createSelectMenu(options)];
+            },
+            createSelectMenuChannels(options: SelectMenuChannelsOptions){
+                component[component.length - 1].components = [createSelectMenuChannels(options)];
+            },
+            createSelectMenuRoles(options: SelectMenuRolesOptions){
+                component[component.length - 1].components = [createSelectMenuRoles(options)];
+            },
+            createSelectMenuUsers(options: SelectMenuUsersOptions){
+                component[component.length - 1].components = [createSelectMenuUsers(options)];
+            },
+            createSelectMenuUsersAndRoles(options: SelectMenuUsersOptions & SelectMenuRolesOptions){
+                component[component.length - 1].components = [createSelectMenuUsersAndRoles(options)];
             }
         }
+    }
+    async sendDirectMessage(userId: BigString, options?: CreateMessage) {
+        if(!options) options = {};
+        if(!options.components && this.components.length > 0) options.components = this.components;
+        if(!options.content && this.content) options.content = this.content;
+        if(!options.embeds && this.embeds) options.embeds = this.embeds;
+        if(!options.file && this.file) options.file = this.file;
+        if(!options.allowedMentions && this.allowedMentions) options.allowedMentions = this.allowedMentions;
+        if(!options.tts && this.tts) options.tts = this.tts;
+        if(!options.messageReference && this.messageReference) options.messageReference = this.messageReference;
+        if(!options.nonce && this.nonce) options.nonce = this.nonce;
+        if(!options.stickerIds && this.stickerIds) options.stickerIds = this.stickerIds;
+        return await sendDirectMessage(this.bot, userId, options);
     }
     async sendMessage(channelId: BigString, options?: CreateMessage) {
         if(!options) options = {};

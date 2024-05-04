@@ -10,7 +10,8 @@ export function createTextInput(options: TextInputOptions) : InputTextComponent
     if(options.maxLength) input.maxLength = options.maxLength;
     if(options.minLength) input.minLength = options.minLength;
     if(options.placeholder) input.placeholder = options.placeholder;
-    if(options.required != undefined) input.required = options.required;
+    if(options.required) input.required = options.required;
+    else input.required = false;
     if(options.value) input.value = options.value;
     return input;
 }
