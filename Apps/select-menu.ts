@@ -41,7 +41,8 @@ export function createSelectMenuUsersAndRoles(options: SelectMenuUsersOptions & 
     return selectMenu;
 }
 
-export interface SelectMenuRolesOptions {
+export interface SelectMenuOptions {
+    options: SelectOption[]
     customId: string
     disabled?: boolean
     placeholder?: string
@@ -49,11 +50,20 @@ export interface SelectMenuRolesOptions {
     maxValues?: number
 }
 
+export interface SelectMenuRolesOptions {
+    customId: string
+    disabled?: boolean
+    placeholder?: string
+    minValues?: number
+    maxValues?: number
+    defaultValues: {
+        id: bigint
+        type: "user" | "role" | "channel"
+    }[]
+}
+
 export interface SelectMenuUsersOptions extends SelectMenuRolesOptions {}
 
-export interface SelectMenuOptions extends SelectMenuRolesOptions {
-    options: SelectOption[]
-}
 
 export interface SelectMenuChannelsOptions extends SelectMenuRolesOptions {
     channelTypes?: ChannelTypes[]

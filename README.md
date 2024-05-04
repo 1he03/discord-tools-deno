@@ -1,7 +1,7 @@
 # Getting Started
 Here is a minimal example to create and show modal:
 ```typescript
-import { createModal } from "https://deno.land/x/discord_tools@v1.0.9/mod.ts";
+import { createModal } from "https://deno.land/x/discord_tools@v1.1.0/mod.ts";
 
 const modal = createModal("title", "customId");
 modal.createTextInput({label:"label", customId:"customId", style:"Short"});
@@ -12,7 +12,7 @@ modal.show(bot, Interaction);
 MessageTools is easy tools for control send or edit message:
 
 ```typescript
-import { MessageTools } from "https://deno.land/x/discord_tools@v1.0.9/mod.ts";
+import { MessageTools } from "https://deno.land/x/discord_tools@v1.1.0/mod.ts";
 
 const messageTools = new MessageTools(bot);
 messageTools.createActionRow()
