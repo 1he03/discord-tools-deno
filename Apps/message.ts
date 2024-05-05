@@ -4,20 +4,36 @@ import {
     Bot,
     ButtonComponent,
     BigString,
-    CreateMessage,
-    EditMessage,
-    InteractionCallbackData,
+    // CreateMessage,
+    // EditMessage,
+    // InteractionCallbackData,
     FileContent,
     Embed,
     AllowedMentions,
     ApplicationCommandOptionChoice,
     Attachment,
-    MessageComponents
+    MessageComponents,
+    getFollowupMessage,
+    InteractionResponseTypes,
+    getOriginalInteractionResponse,
+    deleteFollowupMessage
 } from "https://deno.land/x/discordeno@18.0.1/mod.ts";
-import { sendDirectMessage } from "https://deno.land/x/discordeno@18.0.1/plugins/mod.ts";
+import { dmChannelIds } from "https://deno.land/x/discordeno@18.0.1/plugins/mod.ts";
 import { Components } from "./action-row.ts";
 import { createButton, ButtonOptions } from "./button.ts";
-import { createSelectMenu, createSelectMenuChannels, createSelectMenuRoles, createSelectMenuUsers, createSelectMenuUsersAndRoles, SelectMenuChannelsOptions, SelectMenuOptions, SelectMenuRolesOptions, SelectMenuUsersOptions } from "./select-menu.ts";
+import { 
+    createSelectMenu,
+    createSelectMenuChannels,
+    createSelectMenuRoles,
+    createSelectMenuUsers,
+    createSelectMenuUsersAndRoles,
+    SelectMenuChannelsOptions,
+    SelectMenuOptions,
+    SelectMenuRolesOptions,
+    SelectMenuUsersOptions
+} from "./select-menu.ts";
+import { SubInteractionCallbackData, editFollowupMessage, editOriginalInteractionResponse, sendFollowupMessage, sendInteractionResponse } from "../helper/responses.ts";
+import { SubEditMessage, editMessage, sendMessage, SubCreateMessage } from "../helper/messages.ts";
 
 export class MessageTools {
     private bot: Bot;
@@ -35,7 +51,7 @@ export class MessageTools {
     public messageReference?: { messageId?: BigString | undefined; channelId?: BigString | undefined; guildId?: BigString | undefined; failIfNotExists: boolean; };
     public nonce?: string | number;
     public stickerIds?: [bigint] | [bigint, bigint] | [bigint, bigint, bigint];
-    constructor(bot: Bot, options?: CreateMessage & EditMessage & InteractionCallbackData) {
+    constructor(bot: Bot, options?: SubCreateMessage & SubEditMessage & SubInteractionCallbackData) {
         if(!options) options = {};
         if(options.content) this.content = options.content;
         if(options.embeds) this.embeds = options.embeds;
@@ -130,7 +146,22 @@ export class MessageTools {
             }
         }
     }
-    async sendDirectMessage(userId: BigString, options?: CreateMessage) {
+    async getAllmessages(channelId: BigString) {
+        const messages = (await this.bot.helpers.getMessages(channelId as bigint, {limit: 100}));
+        let len = messages.size;
+        while(len >= 100) {
+            const messages_2 = (await this.bot.helpers.getMessages(channelId as bigint, {limit: 100, before: messages.last()?.id}));
+            len = messages_2.size;
+            for(const msg of messages_2.array()) {
+                messages.set(msg.id, msg);
+            }
+        }
+        return messages;
+    }
+    async getMessage(channelId: BigString, messageId: BigString) {
+        return await this.bot.helpers.getMessage(channelId, messageId);
+    }
+    async sendDirectMessage(userId: BigString, options?: SubCreateMessage) {
         if(!options) options = {};
         if(!options.components && this.components.length > 0) options.components = this.components;
         if(!options.content && this.content) options.content = this.content;
@@ -141,9 +172,16 @@ export class MessageTools {
         if(!options.messageReference && this.messageReference) options.messageReference = this.messageReference;
         if(!options.nonce && this.nonce) options.nonce = this.nonce;
         if(!options.stickerIds && this.stickerIds) options.stickerIds = this.stickerIds;
-        return await sendDirectMessage(this.bot, userId, options);
+        if(!options.attachments && this.attachments) options.attachments = this.attachments;
+        
+        const cachedChannelId = dmChannelIds.get(userId);
+        if (cachedChannelId) return await this.sendMessage(cachedChannelId, options);
+
+        const channel = (await this.bot.helpers.getDmChannel(userId));
+        dmChannelIds.set(userId, channel.id);
+        return await this.sendMessage(channel.id, options);
     }
-    async sendMessage(channelId: BigString, options?: CreateMessage) {
+    async sendMessage(channelId: BigString, options?: SubCreateMessage) {
         if(!options) options = {};
         if(!options.components && this.components.length > 0) options.components = this.components;
         if(!options.content && this.content) options.content = this.content;
@@ -154,9 +192,11 @@ export class MessageTools {
         if(!options.messageReference && this.messageReference) options.messageReference = this.messageReference;
         if(!options.nonce && this.nonce) options.nonce = this.nonce;
         if(!options.stickerIds && this.stickerIds) options.stickerIds = this.stickerIds;
-        return await this.bot.helpers.sendMessage(channelId, options);
+        if(!options.attachments && this.attachments) options.attachments = this.attachments;
+        // return await this.bot.helpers.sendMessage(channelId, options);
+        return await sendMessage(this.bot, channelId, options);
     }
-    async editMessage(channelId: BigString, messageId: BigString, options?: EditMessage) {
+    async editMessage(channelId: BigString, messageId: BigString, options?: SubEditMessage) {
         if(!options) options = {};
         if(!options.components && this.components.length > 0) options.components = this.components;
         if(!options.content && this.content) options.content = this.content;
@@ -165,9 +205,13 @@ export class MessageTools {
         if(!options.allowedMentions && this.allowedMentions) options.allowedMentions = this.allowedMentions;
         if(!options.flags && this.flags) options.flags = this.flags as 4;
         if(!options.attachments && this.attachments) options.attachments = this.attachments;
-        return await this.bot.helpers.editMessage(channelId, messageId, options);
+        // return await this.bot.helpers.editMessage(channelId, messageId, options);
+        return await editMessage(this.bot, channelId, messageId, options);
     }
-    async sendInteraction(interaction: Interaction, options?: InteractionCallbackData) {
+    async deleteMessage(channelId: BigString, messageId: BigString, reason?: string | undefined, delayMilliseconds?: number | undefined) {
+        return await this.bot.helpers.deleteMessage(channelId, messageId, reason, delayMilliseconds)
+    }
+    async sendInteraction(interaction: Interaction, type: InteractionResponseTypes, options?: SubInteractionCallbackData) {
         if(!options) options = {};
         if(!options.components && this.components.length > 0) options.components = this.components;
         if(!options.content && this.content) options.content = this.content;
@@ -179,9 +223,62 @@ export class MessageTools {
         if(!options.customId && this.customId) options.customId = this.customId;
         if(!options.flags && this.flags) options.flags = this.flags;
         if(!options.title && this.title) options.title = this.title;
-        await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 4, data: options});
+        if(!options.attachments && this.attachments) options.attachments = this.attachments;
+        // await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 4, data: options});
+        return await sendInteractionResponse(this.bot, interaction.id, interaction.token, {type, data: options});
     }
-    async editInteraction(interaction: Interaction, options?: InteractionCallbackData) {
+    // async editInteraction(interaction: Interaction, options?: SubInteractionCallbackData) {
+    //     if(!options) options = {};
+    //     if(!options.components && this.components.length > 0) options.components = this.components;
+    //     if(!options.content && this.content) options.content = this.content;
+    //     if(!options.embeds && this.embeds) options.embeds = this.embeds;
+    //     if(!options.file && this.file) options.file = this.file;
+    //     if(!options.allowedMentions && this.allowedMentions) options.allowedMentions = this.allowedMentions;
+    //     if(!options.tts && this.tts) options.tts = this.tts;
+    //     if(!options.choices && this.choices) options.choices = this.choices;
+    //     if(!options.customId && this.customId) options.customId = this.customId;
+    //     if(!options.flags && this.flags) options.flags = this.flags;
+    //     if(!options.title && this.title) options.title = this.title;
+    //     if(!options.attachments && this.attachments) options.attachments = this.attachments;
+    //     // await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 7, data: options});
+    //     return await sendInteractionResponse(this.bot, interaction.id, interaction.token, {type: InteractionResponseTypes.UpdateMessage, data: options});
+    // }
+    // async deferredSendInteraction(interaction: Interaction, options?: SubInteractionCallbackData) {
+    //     if(!options) options = {};
+    //     if(!options.components && this.components.length > 0) options.components = this.components;
+    //     if(!options.content && this.content) options.content = this.content;
+    //     if(!options.embeds && this.embeds) options.embeds = this.embeds;
+    //     if(!options.file && this.file) options.file = this.file;
+    //     if(!options.allowedMentions && this.allowedMentions) options.allowedMentions = this.allowedMentions;
+    //     if(!options.tts && this.tts) options.tts = this.tts;
+    //     if(!options.choices && this.choices) options.choices = this.choices;
+    //     if(!options.customId && this.customId) options.customId = this.customId;
+    //     if(!options.flags && this.flags) options.flags = this.flags;
+    //     if(!options.title && this.title) options.title = this.title;
+    //     if(!options.attachments && this.attachments) options.attachments = this.attachments;
+    //     // await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 5, data: options});
+    //     return await sendInteractionResponse(this.bot, interaction.id, interaction.token, {type: InteractionResponseTypes.DeferredChannelMessageWithSource, data: options});
+    // }
+    // async deferredUpdateInteraction(interaction: Interaction, options?: SubInteractionCallbackData) {
+    //     if(!options) options = {};
+    //     if(!options.components && this.components.length > 0) options.components = this.components;
+    //     if(!options.content && this.content) options.content = this.content;
+    //     if(!options.embeds && this.embeds) options.embeds = this.embeds;
+    //     if(!options.file && this.file) options.file = this.file;
+    //     if(!options.allowedMentions && this.allowedMentions) options.allowedMentions = this.allowedMentions;
+    //     if(!options.tts && this.tts) options.tts = this.tts;
+    //     if(!options.choices && this.choices) options.choices = this.choices;
+    //     if(!options.customId && this.customId) options.customId = this.customId;
+    //     if(!options.flags && this.flags) options.flags = this.flags;
+    //     if(!options.title && this.title) options.title = this.title;
+    //     if(!options.attachments && this.attachments) options.attachments = this.attachments;
+    //     // await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 6, data: options});
+    //     return await sendInteractionResponse(this.bot, interaction.id, interaction.token, {type: InteractionResponseTypes.DeferredUpdateMessage, data: options});
+    // }
+    async getOriginalInteraction(interaction: Interaction) {
+        return await getOriginalInteractionResponse(this.bot, interaction.token);
+    }
+    async editOriginalInteraction(interaction: Interaction, options: SubInteractionCallbackData) {
         if(!options) options = {};
         if(!options.components && this.components.length > 0) options.components = this.components;
         if(!options.content && this.content) options.content = this.content;
@@ -193,9 +290,17 @@ export class MessageTools {
         if(!options.customId && this.customId) options.customId = this.customId;
         if(!options.flags && this.flags) options.flags = this.flags;
         if(!options.title && this.title) options.title = this.title;
-        await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 7, data: options});
+        if(!options.attachments && this.attachments) options.attachments = this.attachments;
+        // return await this.bot.helpers.editOriginalInteractionResponse(interaction.token, options);
+        return await editOriginalInteractionResponse(this.bot, interaction.token, options);
     }
-    async deferredSendInteraction(interaction: Interaction, options?: InteractionCallbackData) {
+    async deleteOriginalInteractionResponse(interaction: Interaction) {
+        return await this.bot.helpers.deleteOriginalInteractionResponse(interaction.token)
+    }
+    async getFollowupMessage(interaction: Interaction, messageId: BigString) {
+        return await getFollowupMessage(this.bot, interaction.token, messageId)
+    }
+    async sendFollowupMessage(interaction: Interaction, type: InteractionResponseTypes, options?: SubInteractionCallbackData) {
         if(!options) options = {};
         if(!options.components && this.components.length > 0) options.components = this.components;
         if(!options.content && this.content) options.content = this.content;
@@ -207,9 +312,11 @@ export class MessageTools {
         if(!options.customId && this.customId) options.customId = this.customId;
         if(!options.flags && this.flags) options.flags = this.flags;
         if(!options.title && this.title) options.title = this.title;
-        await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 5, data: options});
+        if(!options.attachments && this.attachments) options.attachments = this.attachments;
+
+        return await sendFollowupMessage(this.bot, interaction.token, {type: type, data: options});
     }
-    async deferredUpdateInteraction(interaction: Interaction, options?: InteractionCallbackData) {
+    async editFollowupMessage(interaction: Interaction, messageId: BigString, options?: SubInteractionCallbackData) {
         if(!options) options = {};
         if(!options.components && this.components.length > 0) options.components = this.components;
         if(!options.content && this.content) options.content = this.content;
@@ -221,21 +328,12 @@ export class MessageTools {
         if(!options.customId && this.customId) options.customId = this.customId;
         if(!options.flags && this.flags) options.flags = this.flags;
         if(!options.title && this.title) options.title = this.title;
-        await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 6, data: options});
+        if(!options.attachments && this.attachments) options.attachments = this.attachments;
+
+        return await editFollowupMessage(this.bot, interaction.token, messageId, options);
     }
-    async editOriginalInteraction(interaction: Interaction, options: InteractionCallbackData) {
-        if(!options) options = {};
-        if(!options.components && this.components.length > 0) options.components = this.components;
-        if(!options.content && this.content) options.content = this.content;
-        if(!options.embeds && this.embeds) options.embeds = this.embeds;
-        if(!options.file && this.file) options.file = this.file;
-        if(!options.allowedMentions && this.allowedMentions) options.allowedMentions = this.allowedMentions;
-        if(!options.tts && this.tts) options.tts = this.tts;
-        if(!options.choices && this.choices) options.choices = this.choices;
-        if(!options.customId && this.customId) options.customId = this.customId;
-        if(!options.flags && this.flags) options.flags = this.flags;
-        if(!options.title && this.title) options.title = this.title;
-        return await this.bot.helpers.editOriginalInteractionResponse(interaction.token, options);
+    async deleteFollowupMessage(interaction: Interaction, messageId: BigString) {
+        return await deleteFollowupMessage(this.bot, interaction.token, messageId);
     }
     clear() {
         this.components = [];
