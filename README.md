@@ -24,7 +24,7 @@ messageTools.createActionRow()
 // you can explore more feature for MessagesTools
 
 await messageTools.sendMessage("channelId");
-await messageTools.sendMessage("channelId",{content:"content"}); // or send with options
+await messageTools.sendMessage("channelId", {content:"content"}); // or send with options
 
 messageTools.clear(); // reset all options data
 
@@ -41,6 +41,7 @@ await messageTools.editMessage("channelId", "messageId");
 await messageTools.sendMessage("channelId");
 await messageTools.editMessage("channelId", "messageId");
 await messageTools.sendDirectMessage("userId");
-await messageTools.sendInteraction(interaction);
-await messageTools.editInteraction(interaction);
+await messageTools.sendInteraction(interaction, InteractionResponseTypes.ChannelMessageWithSource);
+await messageTools.sendInteraction(interaction, InteractionResponseTypes.ChannelMessageWithSource, {content:"content"});
+await messageTools.sendInteraction(interaction, InteractionResponseTypes.UpdateMessage);
 ```
