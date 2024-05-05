@@ -16,9 +16,9 @@ import {
     Attachment,
     EditMessage
 } from "https://deno.land/x/discordeno@18.0.1/mod.ts";
-import { transformComponentToDiscordComponent } from "./responses.ts";
+import { subTransformComponentToDiscordComponent } from "./responses.ts";
 
-export async function sendMessage(bot: Bot, channelId: BigString, options: SubCreateMessage): Promise<Message> {
+export async function subSendMessage(bot: Bot, channelId: BigString, options: SubCreateMessage): Promise<Message> {
     const result = await bot.rest.runMethod<DiscordMessage>(
       bot.rest,
       "POST",
@@ -140,7 +140,7 @@ export async function sendMessage(bot: Bot, channelId: BigString, options: SubCr
     return bot.transformers.message(bot, result);
 }
 
-export async function editMessage(bot: Bot, channelId: BigString, messageId: BigString, options: SubEditMessage): Promise<Message> {
+export async function subEditMessage(bot: Bot, channelId: BigString, messageId: BigString, options: SubEditMessage): Promise<Message> {
     const result = await bot.rest.runMethod<DiscordMessage>(
       bot.rest,
       "PATCH",
@@ -153,7 +153,7 @@ export async function editMessage(bot: Bot, channelId: BigString, messageId: Big
           : undefined,
         attachments: options.attachments?.map((attachment) => bot.transformers.reverse.attachment(bot, attachment)),
         file: options.file,
-        components: options.components?.map((component) => transformComponentToDiscordComponent(bot, component)),
+        components: options.components?.map((component) => subTransformComponentToDiscordComponent(bot, component)),
       },
     );
     return bot.transformers.message(bot, result);

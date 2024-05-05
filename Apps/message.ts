@@ -32,8 +32,8 @@ import {
     SelectMenuRolesOptions,
     SelectMenuUsersOptions
 } from "./select-menu.ts";
-import { SubInteractionCallbackData, editFollowupMessage, editOriginalInteractionResponse, sendFollowupMessage, sendInteractionResponse } from "../helper/responses.ts";
-import { SubEditMessage, editMessage, sendMessage, SubCreateMessage } from "../helper/messages.ts";
+import { SubInteractionCallbackData, subEditFollowupMessage, subEditOriginalInteractionResponse, subSendFollowupMessage, subSendInteractionResponse } from "../helper/responses.ts";
+import { SubEditMessage, subEditMessage, subSendMessage, SubCreateMessage } from "../helper/messages.ts";
 
 export class MessageTools {
     private bot: Bot;
@@ -194,7 +194,7 @@ export class MessageTools {
         if(!options.stickerIds && this.stickerIds) options.stickerIds = this.stickerIds;
         if(!options.attachments && this.attachments) options.attachments = this.attachments;
         // return await this.bot.helpers.sendMessage(channelId, options);
-        return await sendMessage(this.bot, channelId, options);
+        return await subSendMessage(this.bot, channelId, options);
     }
     async editMessage(channelId: BigString, messageId: BigString, options?: SubEditMessage) {
         if(!options) options = {};
@@ -206,7 +206,7 @@ export class MessageTools {
         if(!options.flags && this.flags) options.flags = this.flags as 4;
         if(!options.attachments && this.attachments) options.attachments = this.attachments;
         // return await this.bot.helpers.editMessage(channelId, messageId, options);
-        return await editMessage(this.bot, channelId, messageId, options);
+        return await subEditMessage(this.bot, channelId, messageId, options);
     }
     async deleteMessage(channelId: BigString, messageId: BigString, reason?: string | undefined, delayMilliseconds?: number | undefined) {
         return await this.bot.helpers.deleteMessage(channelId, messageId, reason, delayMilliseconds)
@@ -225,7 +225,7 @@ export class MessageTools {
         if(!options.title && this.title) options.title = this.title;
         if(!options.attachments && this.attachments) options.attachments = this.attachments;
         // await this.bot.helpers.sendInteractionResponse(interaction.id, interaction.token, {type: 4, data: options});
-        return await sendInteractionResponse(this.bot, interaction.id, interaction.token, {type, data: options});
+        return await subSendInteractionResponse(this.bot, interaction.id, interaction.token, {type, data: options});
     }
     // async editInteraction(interaction: Interaction, options?: SubInteractionCallbackData) {
     //     if(!options) options = {};
@@ -292,7 +292,7 @@ export class MessageTools {
         if(!options.title && this.title) options.title = this.title;
         if(!options.attachments && this.attachments) options.attachments = this.attachments;
         // return await this.bot.helpers.editOriginalInteractionResponse(interaction.token, options);
-        return await editOriginalInteractionResponse(this.bot, interaction.token, options);
+        return await subEditOriginalInteractionResponse(this.bot, interaction.token, options);
     }
     async deleteOriginalInteractionResponse(interaction: Interaction) {
         return await this.bot.helpers.deleteOriginalInteractionResponse(interaction.token)
@@ -314,7 +314,7 @@ export class MessageTools {
         if(!options.title && this.title) options.title = this.title;
         if(!options.attachments && this.attachments) options.attachments = this.attachments;
 
-        return await sendFollowupMessage(this.bot, interaction.token, {type: type, data: options});
+        return await subSendFollowupMessage(this.bot, interaction.token, {type: type, data: options});
     }
     async editFollowupMessage(interaction: Interaction, messageId: BigString, options?: SubInteractionCallbackData) {
         if(!options) options = {};
@@ -330,7 +330,7 @@ export class MessageTools {
         if(!options.title && this.title) options.title = this.title;
         if(!options.attachments && this.attachments) options.attachments = this.attachments;
 
-        return await editFollowupMessage(this.bot, interaction.token, messageId, options);
+        return await subEditFollowupMessage(this.bot, interaction.token, messageId, options);
     }
     async deleteFollowupMessage(interaction: Interaction, messageId: BigString) {
         return await deleteFollowupMessage(this.bot, interaction.token, messageId);

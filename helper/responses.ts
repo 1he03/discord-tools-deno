@@ -15,14 +15,14 @@ import {
     DiscordAttachment
 } from "https://deno.land/x/discordeno@18.0.1/mod.ts";
 
-export async function sendInteractionResponse(bot: Bot, interactionId: BigString, token: string, options: SubInteractionResponse): Promise<void> {
+export async function subSendInteractionResponse(bot: Bot, interactionId: BigString, token: string, options: SubInteractionResponse): Promise<void> {
     return await bot.rest.sendRequest<void>(bot.rest, {
       url: bot.constants.routes.INTERACTION_ID_TOKEN(interactionId, token),
       method: "POST",
       payload: bot.rest.createRequestBody(bot.rest, {
         method: "POST",
         body: {
-          ...transformInteractionResponseToDiscordInteractionResponse(bot, options),
+          ...subTransformInteractionResponseToDiscordInteractionResponse(bot, options),
           file: options.data?.file,
         },
         // Remove authorization header
@@ -31,14 +31,14 @@ export async function sendInteractionResponse(bot: Bot, interactionId: BigString
     });
 }
 
-export async function sendFollowupMessage(bot: Bot, token: string, options: SubInteractionResponse): Promise<Message> {
+export async function subSendFollowupMessage(bot: Bot, token: string, options: SubInteractionResponse): Promise<Message> {
     const result = await bot.rest.sendRequest<DiscordMessage>(bot.rest, {
       url: bot.constants.routes.WEBHOOK(bot.applicationId, token),
       method: "POST",
       payload: bot.rest.createRequestBody(bot.rest, {
         method: "POST",
         body: {
-          ...transformInteractionResponseToDiscordInteractionResponse(bot, options).data,
+          ...subTransformInteractionResponseToDiscordInteractionResponse(bot, options).data,
           file: options.data?.file,
         },
         // remove authorization header
@@ -49,14 +49,14 @@ export async function sendFollowupMessage(bot: Bot, token: string, options: SubI
     return bot.transformers.message(bot, result);
 }
 
-export async function editFollowupMessage(bot: Bot, token: string, messageId: BigString, options: SubInteractionCallbackData): Promise<Message> {
+export async function subEditFollowupMessage(bot: Bot, token: string, messageId: BigString, options: SubInteractionCallbackData): Promise<Message> {
     const result = await bot.rest.runMethod<DiscordMessage>(
         bot.rest,
         "PATCH",
         bot.constants.routes.WEBHOOK_MESSAGE(bot.applicationId, token, messageId),
         {
             messageId: messageId.toString(),
-            ...transformInteractionResponseToDiscordInteractionResponse(bot, {
+            ...subTransformInteractionResponseToDiscordInteractionResponse(bot, {
             type: InteractionResponseTypes.UpdateMessage,
             data: options,
             }).data,
@@ -67,13 +67,13 @@ export async function editFollowupMessage(bot: Bot, token: string, messageId: Bi
     return bot.transformers.message(bot, result);
   }
 
-export async function editOriginalInteractionResponse(bot: Bot, token: string, options: SubInteractionCallbackData): Promise<Message | undefined> {
+export async function subEditOriginalInteractionResponse(bot: Bot, token: string, options: SubInteractionCallbackData): Promise<Message | undefined> {
     const result = await bot.rest.runMethod<DiscordMessage>(
         bot.rest,
         "PATCH",
         bot.constants.routes.INTERACTION_ORIGINAL_ID_TOKEN(bot.applicationId, token),
         {
-        ...transformInteractionResponseToDiscordInteractionResponse(bot, {
+        ...subTransformInteractionResponseToDiscordInteractionResponse(bot, {
             type: InteractionResponseTypes.UpdateMessage,
             data: options,
         }).data,
@@ -84,7 +84,7 @@ export async function editOriginalInteractionResponse(bot: Bot, token: string, o
     return bot.transformers.message(bot, result);
 }
 
-export function transformInteractionResponseToDiscordInteractionResponse(bot: Bot, payload: SubInteractionResponse): SubDiscordInteractionResponse {
+export function subTransformInteractionResponseToDiscordInteractionResponse(bot: Bot, payload: SubInteractionResponse): SubDiscordInteractionResponse {
   // If no mentions are provided, force disable mentions
   if (payload.data && !payload.data?.allowedMentions) {
     payload.data.allowedMentions = { parse: [] };
@@ -105,13 +105,13 @@ export function transformInteractionResponseToDiscordInteractionResponse(bot: Bo
         embeds: payload.data.embeds?.map((embed) => bot.transformers.reverse.embed(bot, embed)),
         allowed_mentions: bot.transformers.reverse.allowedMentions(bot, payload.data.allowedMentions!),
         attachments: payload.data.attachments?.map((attachment) => bot.transformers.reverse.attachment(bot, attachment)),
-        components: payload.data.components?.map((component) => transformComponentToDiscordComponent(bot, component)),
+        components: payload.data.components?.map((component) => subTransformComponentToDiscordComponent(bot, component)),
       }
       : undefined,
   };
 }
 
-export function transformComponentToDiscordComponent(bot: Bot, payload: SubComponent): SubDiscordComponent {
+export function subTransformComponentToDiscordComponent(bot: Bot, payload: SubComponent): SubDiscordComponent {
     return {
       type: payload.type,
       custom_id: payload.customId,
@@ -148,7 +148,7 @@ export function transformComponentToDiscordComponent(bot: Bot, payload: SubCompo
         value: payload.value,
         channel_types: payload.channelTypes,
         default_values: payload.defaultValues?.map(value => ({id: value.id.toString(), type: value.type})),
-        components: payload.components?.map(component => transformComponentToDiscordComponent(bot, component)),
+        components: payload.components?.map(component => subTransformComponentToDiscordComponent(bot, component)),
     };
 }
 
