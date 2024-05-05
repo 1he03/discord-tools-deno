@@ -5,6 +5,8 @@ export * from "./Apps/action-row.ts";
 export * from "./Apps/modal.ts";
 export * from "./Apps/component.ts";
 export * from "./Apps/message.ts";
+export * from "./helper/messages.ts";
+export * from "./helper/responses.ts";
 export type {
     ActionRow,
     ButtonComponent,
